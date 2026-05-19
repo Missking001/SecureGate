@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "SecureGate",
@@ -14,9 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans min-h-screen bg-gray-50 text-gray-900">
+      <body className={`${inter.className} min-h-screen bg-gray-50 text-gray-900`}>
         <SessionProvider>{children}</SessionProvider>
-      </body >
-    </html >
+      </body>
+    </html>
   );
 }

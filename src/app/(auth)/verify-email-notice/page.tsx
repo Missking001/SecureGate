@@ -3,7 +3,7 @@
 import { AuthCard } from "@/components/ui/AuthCard";
 import { LoadingButton } from "@/components/ui/LoadingButton";
 import { AlertBanner } from "@/components/ui/AlertBanner";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -61,23 +61,31 @@ export default function VerifyEmailNoticePage() {
     <AuthCard
       title="Check your email"
       description={`We've sent a verification link to ${session.user.email}. Please click the link to verify your account.`}
+      backLink={{ href: "/signup", label: "Back" }}
     >
-      <div className="mt-8 space-y-6">
+      <div className="mt-4 space-y-6 py-8">
         {status === "success" && <AlertBanner type="success" message={message} />}
         {status === "error" && <AlertBanner type="error" message={message} />}
         
-        <div className="text-center text-sm text-gray-600">
+        <div className="text-center text-base text-gray-600">
           Didn't receive the email? Check your spam folder or try resending.
         </div>
         
-        <div>
+        <div className="space-y-3">
           <LoadingButton
             onClick={handleResend}
             isLoading={isLoading}
-            className="bg-white text-gray-900 border-gray-300 hover:bg-gray-50"
           >
             Resend verification email
           </LoadingButton>
+
+          <button
+            type="button"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="w-full text-center text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors py-2"
+          >
+            Sign out & use another account
+          </button>
         </div>
       </div>
     </AuthCard>

@@ -2,13 +2,20 @@ import { AuthCard } from "@/components/ui/AuthCard";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Metadata } from "next";
 import { Suspense } from "react";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Sign In | SecureGate",
   description: "Sign in to your SecureGate account",
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const session = await auth();
+  if (session?.user) {
+    redirect("/dashboard");
+  }
+
   return (
     <AuthCard
       title="Sign in to your account"

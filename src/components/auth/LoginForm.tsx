@@ -48,7 +48,7 @@ export function LoginForm() {
       });
 
       if (response?.error) {
-        setError("Invalid email or password");
+        setError("Invalid credentials");
         setIsLoading(false);
         return;
       }

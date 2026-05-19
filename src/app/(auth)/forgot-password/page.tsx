@@ -1,13 +1,20 @@
 import { AuthCard } from "@/components/ui/AuthCard";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 import { Metadata } from "next";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Forgot Password | SecureGate",
   description: "Reset your SecureGate password",
 };
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+  const session = await auth();
+  if (session?.user) {
+    redirect("/dashboard");
+  }
+
   return (
     <AuthCard
       title="Forgot password"

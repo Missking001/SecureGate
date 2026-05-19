@@ -6,8 +6,10 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 const fromEmail = process.env.RESEND_API_KEY ? "onboarding@resend.dev" : "test@example.com";
 
 export async function sendVerificationEmail(email: string, token: string) {
+  const link = `${process.env.NEXTAUTH_URL}/verify-email/${token}`;
+  console.log(`[DEV] Verification link for ${email}: ${link}`);
+
   if (!process.env.RESEND_API_KEY || !resend) {
-    console.warn(`Email disabled. Verification link for ${email}: ${process.env.NEXTAUTH_URL}/verify-email/${token}`);
     return;
   }
 
@@ -24,8 +26,10 @@ export async function sendVerificationEmail(email: string, token: string) {
 }
 
 export async function sendPasswordResetEmail(email: string, token: string) {
+  const link = `${process.env.NEXTAUTH_URL}/reset-password/${token}`;
+  console.log(`[DEV] Password reset link for ${email}: ${link}`);
+
   if (!process.env.RESEND_API_KEY || !resend) {
-    console.warn(`Email disabled. Password reset link for ${email}: ${process.env.NEXTAUTH_URL}/reset-password/${token}`);
     return;
   }
 
