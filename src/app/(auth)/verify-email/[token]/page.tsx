@@ -6,9 +6,11 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { AlertBanner } from "@/components/ui/AlertBanner";
 import Link from "next/link";
 import { use } from "react";
+import { useSession } from "next-auth/react";
 
 export default function VerifyEmailPage({ params }: { params: Promise<{ token: string }> }) {
   const resolvedParams = use(params);
+  const { update } = useSession();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
 
@@ -26,6 +28,7 @@ export default function VerifyEmailPage({ params }: { params: Promise<{ token: s
         if (response.ok) {
           setStatus("success");
           setMessage(data.message);
+          await update({ emailVerified: new Date() });
         } else {
           setStatus("error");
           setMessage(data.error);
