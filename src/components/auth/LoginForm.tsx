@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormField } from "@/components/ui/FormField";
 import { LoadingButton } from "@/components/ui/LoadingButton";
 import { AlertBanner } from "@/components/ui/AlertBanner";
@@ -11,6 +11,8 @@ import Link from "next/link";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isVerified = searchParams.get("verified") === "true";
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -61,6 +63,12 @@ export function LoginForm() {
 
   return (
     <form className="mt-8 space-y-6" onSubmit={onSubmit} noValidate>
+      {isVerified && (
+        <AlertBanner
+          type="success"
+          message="Your email has been verified successfully. Please sign in."
+        />
+      )}
       {error && <AlertBanner type="error" message={error} />}
       
       <div className="space-y-4">

@@ -1,6 +1,7 @@
 import { AuthCard } from "@/components/ui/AuthCard";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Sign In | SecureGate",
@@ -13,7 +14,9 @@ export default function LoginPage() {
       title="Sign in to your account"
       description="Welcome back! Please enter your details."
     >
-      <LoginForm />
+      <Suspense fallback={<div>Loading...</div>}>
+        <LoginForm />
+      </Suspense>
     </AuthCard>
   );
 }

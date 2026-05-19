@@ -7,10 +7,12 @@ import { AlertBanner } from "@/components/ui/AlertBanner";
 import Link from "next/link";
 import { use } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function VerifyEmailPage({ params }: { params: Promise<{ token: string }> }) {
   const resolvedParams = use(params);
   const { update } = useSession();
+  const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
 
@@ -29,6 +31,9 @@ export default function VerifyEmailPage({ params }: { params: Promise<{ token: s
           setStatus("success");
           setMessage(data.message);
           await update({ emailVerified: new Date() });
+          setTimeout(() => {
+            router.push("/login?verified=true");
+          }, 2000);
         } else {
           setStatus("error");
           setMessage(data.error);
@@ -59,10 +64,10 @@ export default function VerifyEmailPage({ params }: { params: Promise<{ token: s
           <>
             <AlertBanner type="success" message={message} />
             <Link
-              href="/dashboard"
+              href="/login"
               className="mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
             >
-              Continue to Dashboard
+              Go to Login
             </Link>
           </>
         )}
