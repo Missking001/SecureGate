@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { forgotPasswordSchema } from "@/lib/validations/auth";
-import { generateToken, getTokenExpiry } from "@/lib/token";
+import { generateToken, getPasswordResetTokenExpiry } from "@/lib/token";
 import { sendPasswordResetEmail } from "@/lib/mail";
 import { forgotPasswordRateLimiter } from "@/lib/ratelimit";
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     // 4. Generate token and send email if user exists
     if (user) {
       const token = generateToken();
-      const expires = getTokenExpiry(); // 15 mins
+      const expires = getPasswordResetTokenExpiry(); // 1 hour
 
       await prisma.passwordResetToken.create({
         data: {

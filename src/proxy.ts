@@ -14,7 +14,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    if (session.user.emailVerified === null) {
+    if (!session.user.emailVerified) {
       return NextResponse.redirect(new URL("/verify-email-notice", request.url));
     }
   }
