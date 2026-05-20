@@ -60,6 +60,15 @@ export async function POST(req: Request) {
     // Send verification email
     await sendVerificationEmail(email, token);
 
+    // Log signup activity
+    await prisma.activity.create({
+      data: {
+        userId: user.id,
+        action: "signup",
+        details: JSON.stringify({ email }),
+      },
+    });
+
     return NextResponse.json(
       { message: "User created successfully. Please verify your email." },
       { status: 201 }

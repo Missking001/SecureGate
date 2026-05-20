@@ -13,6 +13,7 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isVerified = searchParams.get("verified") === "true";
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -53,7 +54,8 @@ export function LoginForm() {
         return;
       }
 
-      router.push("/dashboard");
+      // Re-fetch session before redirect to ensure JWT is up-to-date
+      router.push(callbackUrl);
       router.refresh();
     } catch (err) {
       setError("Something went wrong. Please try again.");

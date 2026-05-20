@@ -4,7 +4,7 @@ import { AuthCard } from "@/components/ui/AuthCard";
 import { LoadingButton } from "@/components/ui/LoadingButton";
 import { AlertBanner } from "@/components/ui/AlertBanner";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function VerifyEmailNoticePage() {
@@ -14,19 +14,17 @@ export default function VerifyEmailNoticePage() {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
-  if (sessionStatus === "loading") {
-    return null;
-  }
+  useEffect(() => {
+    if (sessionStatus !== "loading") {
+      if (!session) {
+        router.replace("/login");
+      } else if (session.user.emailVerified) {
+        router.replace("/dashboard");
+      }
+    }
+  }, [session, sessionStatus, router]);
 
-  // If unauthenticated, they shouldn't be here (middleware handles this but just in case)
-  if (!session) {
-    router.replace("/login");
-    return null;
-  }
-
-  // If already verified, go to dashboard
-  if (session.user.emailVerified) {
-    router.replace("/dashboard");
+  if (sessionStatus === "loading" || !session || session.user.emailVerified) {
     return null;
   }
 

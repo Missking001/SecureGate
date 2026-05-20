@@ -1,8 +1,9 @@
 import type { NextAuthConfig } from "next-auth";
 
-export const authConfig = {
+export const authConfig: NextAuthConfig = {
   session: {
     strategy: "jwt",
+    maxAge: 24 * 60 * 60, // 24 hours
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   pages: {
@@ -27,5 +28,5 @@ export const authConfig = {
       return session;
     },
   },
-  providers: [], // Configured in auth.ts
-} satisfies NextAuthConfig;
+  providers: [],
+};

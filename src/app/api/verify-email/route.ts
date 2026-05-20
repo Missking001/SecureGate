@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isTokenExpired } from "@/lib/token";
+import { verifyEmailRateLimiter } from "@/lib/ratelimit";
+import { headers } from "next/headers";
 
 export async function POST(req: Request) {
   try {
+    const reqHeaders = await headers();
+    const ip = reqHeaders.get("x-forwarded-for") || "127.0.0.1";
+    const { success } = await verifyEmailRateLimiter.limit(ip);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const { token } = await req.json();
 
     if (!token || typeof token !== "string") {
@@ -31,7 +44,7 @@ export async function POST(req: Request) {
     }
 
     // Mark user as verified
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { email: verificationToken.identifier },
       data: { emailVerified: new Date() },
     });
@@ -39,6 +52,14 @@ export async function POST(req: Request) {
     // Delete token
     await prisma.verificationToken.delete({
       where: { token },
+    });
+
+    // Log verification activity
+    await prisma.activity.create({
+      data: {
+        userId: user.id,
+        action: "email_verified",
+      },
     });
 
     return NextResponse.json(

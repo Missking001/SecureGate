@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AuthCard } from "@/components/ui/AuthCard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { AlertBanner } from "@/components/ui/AlertBanner";
 import Link from "next/link";
 import { use } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
 export default function VerifyEmailPage({ params }: { params: Promise<{ token: string }> }) {
   const resolvedParams = use(params);
   const { update } = useSession();
-  const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
+  const isLoggedInRef = useRef(false);
+
+  // Track login state via a dedicated effect
+  const { data: session } = useSession();
+  useEffect(() => {
+    isLoggedInRef.current = !!session?.user;
+  }, [session]);
 
   useEffect(() => {
     const verify = async () => {
@@ -30,22 +35,33 @@ export default function VerifyEmailPage({ params }: { params: Promise<{ token: s
         if (response.ok) {
           setStatus("success");
           setMessage(data.message);
+
+          // Update JWT session so middleware reads the new emailVerified
           await update({ emailVerified: new Date() });
+
           setTimeout(() => {
-            router.push("/login?verified=true");
-          }, 2000);
+            // Use ref value (updated by session effect, not captured in closure)
+            if (isLoggedInRef.current) {
+              // Hard navigation ensures middleware re-reads the fresh cookie
+              window.location.href = "/dashboard";
+            } else {
+              window.location.href = "/login?verified=true";
+            }
+          }, 1500);
         } else {
           setStatus("error");
           setMessage(data.error);
         }
-      } catch (err) {
+      } catch {
         setStatus("error");
         setMessage("An unexpected error occurred");
       }
     };
 
     verify();
-  }, [resolvedParams.token]);
+    // Only run once — resolvedParams.token is stable from `use()`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AuthCard
@@ -63,12 +79,16 @@ export default function VerifyEmailPage({ params }: { params: Promise<{ token: s
         {status === "success" && (
           <>
             <AlertBanner type="success" message={message} />
-            <Link
-              href="/login"
-              className="mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
-            >
-              Go to Login
-            </Link>
+            {session?.user ? (
+              <p className="text-sm text-gray-500 mt-2">Redirecting to dashboard...</p>
+            ) : (
+              <Link
+                href="/login"
+                className="mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+              >
+                Go to Login
+              </Link>
+            )}
           </>
         )}
         {status === "error" && (

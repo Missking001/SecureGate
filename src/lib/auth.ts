@@ -7,6 +7,16 @@ import { headers } from "next/headers";
 import { loginRateLimiter } from "@/lib/ratelimit";
 import { authConfig } from "@/lib/auth.config";
 
+async function logActivity(userId: string, action: string, details?: string) {
+  try {
+    await prisma.activity.create({
+      data: { userId, action, details },
+    });
+  } catch (e) {
+    console.error("Failed to log activity:", e);
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
@@ -45,6 +55,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!isPasswordValid) {
           return null;
         }
+
+        // Update lastLoginAt and log activity (fire-and-forget)
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        });
+        await logActivity(user.id, "login", JSON.stringify({ ip }));
 
         return {
           id: user.id,

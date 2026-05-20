@@ -45,3 +45,13 @@ export const forgotPasswordRateLimiter = hasUpstash
       prefix: "ratelimit:forgotpw",
     })
   : { limit: async (ip: string) => new InMemoryRateLimiter(3, 15 * 60 * 1000).limitAction(ip) };
+
+// 5 attempts per 15 minutes for email verification
+export const verifyEmailRateLimiter = hasUpstash
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(5, "15 m"),
+      analytics: true,
+      prefix: "ratelimit:verifyemail",
+    })
+  : { limit: async (ip: string) => new InMemoryRateLimiter(5, 15 * 60 * 1000).limitAction(ip) };
