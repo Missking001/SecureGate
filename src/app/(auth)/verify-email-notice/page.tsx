@@ -47,7 +47,7 @@ export default function VerifyEmailNoticePage() {
         setStatus("error");
         setMessage(data.error || "Failed to resend email");
       }
-    } catch (err) {
+    } catch {
       setStatus("error");
       setMessage("An unexpected error occurred");
     } finally {
@@ -66,7 +66,7 @@ export default function VerifyEmailNoticePage() {
         {status === "error" && <AlertBanner type="error" message={message} />}
         
         <div className="text-center text-base text-gray-600">
-          Didn't receive the email? Check your spam folder or try resending.
+          Didn&apos;t receive the email? Check your spam folder or try resending.
         </div>
         
         <div className="space-y-3">

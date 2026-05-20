@@ -1,32 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+
 
 type StrengthState = "weak" | "fair" | "strong" | "empty";
 
 export function PasswordStrength({ password }: { password?: string }) {
-  const [strength, setStrength] = useState<StrengthState>("empty");
-
-  useEffect(() => {
-    if (!password) {
-      setStrength("empty");
-      return;
-    }
-
+  const getStrength = (pwd?: string): StrengthState => {
+    if (!pwd) return "empty";
     let score = 0;
-    if (password.length >= 8) score += 1;
-    if (/[A-Z]/.test(password)) score += 1;
-    if (/[0-9]/.test(password)) score += 1;
-    if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+    if (pwd.length >= 8) score += 1;
+    if (/[A-Z]/.test(pwd)) score += 1;
+    if (/[0-9]/.test(pwd)) score += 1;
+    if (/[^a-zA-Z0-9]/.test(pwd)) score += 1;
 
-    if (score <= 2) {
-      setStrength("weak");
-    } else if (score === 3) {
-      setStrength("fair");
-    } else {
-      setStrength("strong");
-    }
-  }, [password]);
+    if (score <= 2) return "weak";
+    if (score === 3) return "fair";
+    return "strong";
+  };
+
+  const strength = getStrength(password);
 
   const getBarColor = (index: number) => {
     if (strength === "empty") return "bg-gray-200";

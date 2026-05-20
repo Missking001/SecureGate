@@ -23,7 +23,7 @@ export default function ErrorPage({
             Something went wrong!
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            We've encountered an unexpected error. Please try again.
+            We&apos;ve encountered an unexpected error. Please try again.
           </p>
         </div>
         <div>

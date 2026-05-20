@@ -16,7 +16,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const { token, password } = result.data as any; // token added outside schema
+    const { password } = result.data;
+    const token = body.token;
 
     if (!token || typeof token !== "string") {
       return NextResponse.json({ error: "Token is required" }, { status: 400 });
