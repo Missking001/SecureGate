@@ -13,7 +13,21 @@ model User {
   email          String    @unique
   hashedPassword String
   emailVerified  DateTime?
+  lastLoginAt    DateTime?
   createdAt      DateTime  @default(now())
+  activities     Activity[]
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // "signup" | "login" | "logout" | "email_verified" | "password_changed" | "verification_resent"
+  details   String?  // JSON string for extra context
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model VerificationToken {
