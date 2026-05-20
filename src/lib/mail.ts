@@ -1,24 +1,37 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+import { render } from "@react-email/components";
 import VerificationEmail from "@/emails/VerificationEmail";
 import PasswordResetEmail from "@/emails/PasswordResetEmail";
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-const fromEmail = process.env.RESEND_API_KEY ? "onboarding@resend.dev" : "test@example.com";
+const transporter =
+  process.env.SMTP_HOST
+    ? nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      })
+    : null;
+
+const fromEmail = process.env.EMAIL_FROM || "noreply@securegate.app";
 
 export async function sendVerificationEmail(email: string, token: string) {
   const link = `${process.env.NEXTAUTH_URL}/verify-email/${token}`;
   console.log(`[DEV] Verification link for ${email}: ${link}`);
 
-  if (!process.env.RESEND_API_KEY || !resend) {
+  if (!transporter) {
     return;
   }
 
   try {
-    await resend.emails.send({
+    const html = await render(VerificationEmail({ token }));
+    await transporter.sendMail({
       from: `SecureGate <${fromEmail}>`,
       to: email,
       subject: "Verify your SecureGate account",
-      react: VerificationEmail({ token }),
+      html,
     });
   } catch (error) {
     console.error("Failed to send verification email", error);
@@ -29,16 +42,17 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const link = `${process.env.NEXTAUTH_URL}/reset-password/${token}`;
   console.log(`[DEV] Password reset link for ${email}: ${link}`);
 
-  if (!process.env.RESEND_API_KEY || !resend) {
+  if (!transporter) {
     return;
   }
 
   try {
-    await resend.emails.send({
+    const html = await render(PasswordResetEmail({ token }));
+    await transporter.sendMail({
       from: `SecureGate <${fromEmail}>`,
       to: email,
       subject: "Reset your SecureGate password",
-      react: PasswordResetEmail({ token }),
+      html,
     });
   } catch (error) {
     console.error("Failed to send password reset email", error);
