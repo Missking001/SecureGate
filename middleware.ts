@@ -20,7 +20,7 @@ const isStaticAsset = (pathname: string) =>
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
-  const isLoggedIn = !!req.auth?.user;
+  const isLoggedIn = !!req.auth;
 
   // Never block static assets
   if (isStaticAsset(pathname)) return;

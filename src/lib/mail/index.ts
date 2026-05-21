@@ -19,36 +19,5 @@ function getProvider(): EmailProvider {
 
 const provider = getProvider();
 
-type EmailJob = () => Promise<void>;
-
-const queue: EmailJob[] = [];
-let processing = false;
-
-async function processQueue(): Promise<void> {
-  if (processing) return;
-  processing = true;
-
-  while (queue.length > 0) {
-    const job = queue.shift()!;
-    try {
-      await job();
-    } catch (error) {
-      console.error("Email queue: failed to send email:", error);
-    }
-  }
-
-  processing = false;
-}
-
-function enqueue(fn: EmailJob): void {
-  queue.push(fn);
-  processQueue();
-}
-
-export async function sendVerificationEmail(email: string, token: string): Promise<void> {
-  enqueue(() => provider.sendVerificationEmail(email, token));
-}
-
-export async function sendPasswordResetEmail(email: string, token: string): Promise<void> {
-  enqueue(() => provider.sendPasswordResetEmail(email, token));
-}
+export const sendVerificationEmail = provider.sendVerificationEmail.bind(provider);
+export const sendPasswordResetEmail = provider.sendPasswordResetEmail.bind(provider);
